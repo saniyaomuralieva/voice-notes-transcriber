@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Voice Notes Transcriber</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Inter, Arial, sans-serif;
+            background:
+                radial-gradient(circle at 10% 10%, rgba(37, 99, 235, 0.18), transparent 30%),
+                radial-gradient(circle at 90% 20%, rgba(124, 58, 237, 0.16), transparent 28%),
+                radial-gradient(circle at 60% 90%, rgba(14, 165, 233, 0.12), transparent 35%),
+                #f8fafc;
+            color: #0f172a;
+        }
+
+        .page {
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 46px 22px;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 34px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 900;
+            font-size: 18px;
+        }
+
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: white;
+            box-shadow: 0 12px 30px rgba(37, 99, 235, 0.25);
+        }
+
+        .nav-badge {
+            padding: 9px 14px;
+            border: 1px solid #dbeafe;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.72);
+            color: #2563eb;
+            font-weight: 800;
+            font-size: 13px;
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: 1.12fr 0.88fr;
+            gap: 26px;
+            align-items: stretch;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.82);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            border-radius: 30px;
+            box-shadow: 0 24px 80px rgba(15, 23, 42, 0.10);
+            backdrop-filter: blur(16px);
+        }
+
+        .main-card {
+            padding: 44px;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: #eff6ff;
+            color: #1d4ed8;
+            font-size: 13px;
+            font-weight: 900;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 56px;
+            line-height: 1;
+            letter-spacing: -2px;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .subtitle {
+            margin: 20px 0 30px;
+            color: #475569;
+            font-size: 18px;
+            line-height: 1.7;
+            max-width: 650px;
+        }
+
+        .upload-box {
+            padding: 22px;
+            border-radius: 24px;
+            background: #f8fbff;
+            border: 2px dashed #bfdbfe;
+        }
+
+        .upload-title {
+            font-size: 16px;
+            font-weight: 900;
+            margin-bottom: 10px;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            padding: 14px;
+            background: white;
+            border: 1px solid #cbd5e1;
+            border-radius: 16px;
+            color: #334155;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 16px;
+            padding: 16px 18px;
+            border: none;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: white;
+            font-size: 16px;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 16px 34px rgba(37, 99, 235, 0.28);
+            transition: 0.18s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 42px rgba(37, 99, 235, 0.34);
+        }
+
+        .hint {
+            margin-top: 12px;
+            color: #64748b;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .side-card {
+            position: relative;
+            overflow: hidden;
+            padding: 34px;
+            background: linear-gradient(145deg, #0f172a, #1e1b4b 55%, #312e81);
+            color: white;
+        }
+
+        .side-card::before {
+            content: "";
+            position: absolute;
+            top: -80px;
+            right: -70px;
+            width: 240px;
+            height: 240px;
+            border-radius: 999px;
+            background: rgba(96, 165, 250, 0.28);
+        }
+
+        .side-card::after {
+            content: "";
+            position: absolute;
+            bottom: -90px;
+            left: -80px;
+            width: 230px;
+            height: 230px;
+            border-radius: 999px;
+            background: rgba(168, 85, 247, 0.22);
+        }
+
+        .side-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .side-content h2 {
+            margin: 0 0 18px;
+            font-size: 30px;
+            letter-spacing: -0.8px;
+        }
+
+        .steps {
+            display: grid;
+            gap: 14px;
+            margin-top: 20px;
+        }
+
+        .step {
+            display: grid;
+            grid-template-columns: 42px 1fr;
+            gap: 12px;
+            padding: 15px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.10);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+        }
+
+        .step-number {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.16);
+            display: grid;
+            place-items: center;
+            font-weight: 900;
+        }
+
+        .step strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .step span {
+            color: #cbd5e1;
+            font-size: 14px;
+            line-height: 1.45;
+        }
+
+        .services {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 28px;
+        }
+
+        .pill {
+            padding: 9px 12px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            font-weight: 800;
+            font-size: 13px;
+        }
+
+        .message {
+            margin-top: 22px;
+            padding: 18px;
+            border-radius: 18px;
+            font-weight: 800;
+        }
+
+        .error {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .result {
+            background: linear-gradient(135deg, #eef2ff, #eff6ff);
+            border: 1px solid #c7d2fe;
+        }
+
+        .result h3 {
+            margin: 0 0 10px;
+            font-size: 22px;
+        }
+
+        .result p {
+            margin: 0;
+            color: #1e293b;
+            line-height: 1.7;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .history {
+            margin-top: 26px;
+            padding: 34px;
+        }
+
+        .history-top {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .history h2 {
+            margin: 0;
+            font-size: 34px;
+            letter-spacing: -1px;
+        }
+
+        .history-subtitle {
+            margin: 8px 0 0;
+            color: #64748b;
+        }
+
+        .transcript-list {
+            display: grid;
+            gap: 14px;
+        }
+
+        .transcript-item {
+            padding: 18px;
+            border-radius: 20px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+
+        .file-name {
+            margin: 0 0 8px;
+            color: #2563eb;
+            font-size: 14px;
+            font-weight: 900;
+        }
+
+        .transcript-text {
+            margin: 0;
+            color: #334155;
+            line-height: 1.65;
+        }
+
+        .empty {
+            padding: 22px;
+            border-radius: 20px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            color: #64748b;
+            font-weight: 700;
+        }
+
+        @media (max-width: 860px) {
+            .hero {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 42px;
+            }
+
+            .main-card {
+                padding: 30px;
+            }
+
+            .nav {
+                align-items: flex-start;
+                gap: 14px;
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="page">
+        <nav class="nav">
+            <div class="logo">
+                <div class="logo-icon">🎙</div>
+                <span>Voice Notes Transcriber</span>
+            </div>
+            <div class="nav-badge">Cloud Systems Project</div>
+        </nav>
+
+        <section class="hero">
+            <div class="card main-card">
+                <div class="eyebrow">☁ Powered by Google Cloud</div>
+
+                <h1>Turn audio into <span class="gradient-text">clear text.</span></h1>
+
+                <p class="subtitle">
+                    Upload a short audio recording and let the application convert it into a readable transcript.
+                    The system processes the file, sends it to Google Cloud Speech-to-Text, and saves the result in Firestore.
+                </p>
+
+                <form method="POST" enctype="multipart/form-data" class="upload-box">
+                    <div class="upload-title">Upload your audio file</div>
+                    <input type="file" name="audio" accept=".mp3,.wav,.m4a,.webm,.ogg,audio/*" required>
+                    <button type="submit">Generate Transcript</button>
+                    <div class="hint">
+                        Supported formats: MP3, WAV, M4A, WEBM, OGG. Short recordings are best for the live demo.
+                    </div>
+                </form>
+
+                {% if error %}
+                    <div class="message error">{{ error }}</div>
+                {% endif %}
+
+                {% if transcript_text %}
+                    <div class="message result">
+                        <h3>New Transcript</h3>
+                        <p>{{ transcript_text }}</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <aside class="card side-card">
+                <div class="side-content">
+                    <h2>How the system works</h2>
+
+                    <div class="steps">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <div>
+                                <strong>Upload</strong>
+                                <span>The user chooses an audio file in the web app.</span>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <div>
+                                <strong>Convert</strong>
+                                <span>FFmpeg prepares the file for cloud transcription.</span>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div>
+                                <strong>Transcribe</strong>
+                                <span>Google Speech-to-Text converts speech into text.</span>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">4</div>
+                            <div>
+                                <strong>Save</strong>
+                                <span>Firestore stores the transcript for later viewing.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="services">
+                        <span class="pill">Cloud Run</span>
+                        <span class="pill">Speech-to-Text</span>
+                        <span class="pill">Firestore</span>
+                        <span class="pill">FFmpeg</span>
+                    </div>
+                </div>
+            </aside>
+        </section>
+
+        <section class="card history">
+            <div class="history-top">
+                <div>
+                    <h2>Saved Transcripts</h2>
+                    <p class="history-subtitle">Latest generated transcripts stored in Firestore.</p>
+                </div>
+            </div>
+
+            {% if saved_transcripts %}
+                <div class="transcript-list">
+                    {% for item in saved_transcripts %}
+                        <div class="transcript-item">
+                            <p class="file-name">{{ item.filename }}</p>
+                            <p class="transcript-text">{{ item.text }}</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty">No transcripts saved yet. Upload an audio file to create the first one.</div>
+            {% endif %}
+        </section>
+    </main>
+</body>
+</html>
